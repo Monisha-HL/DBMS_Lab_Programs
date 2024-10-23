@@ -1,0 +1,58 @@
+use Bank_database_temp411;
+create table Borrower(Customer_name varchar(20),
+loan_number int,
+primary key (Customer_name, loan_number),
+foreign key (Customer_name) references BankCustomer(Customer_name),
+foreign key (loan_number) references Loan(loan_number));
+
+insert into Borrower values('Avinash', 1);
+insert into Borrower values('Dinesh', 2);
+insert into Borrower values('Mohan', 3);
+insert into Borrower values('Nikil', 4);
+insert into Borrower values('Ravi', 5);
+
+select *from Borrower;
+
+SELECT d.Customer_name
+FROM Depositer d
+JOIN BankAccount ba ON d.Acc_no = ba.Acc_no
+JOIN Branch b ON ba.Branch_name = b.Branch_name
+WHERE b.Branch_city = 'Delhi'
+GROUP BY d.Customer_name
+HAVING COUNT(DISTINCT b.Branch_name) = (
+    SELECT COUNT(*)
+    FROM Branch
+    WHERE Branch_city = 'Delhi'
+);
+
+select distinct b.Customer_name
+from Borrower b
+where b.Customer_name not in(
+select d.Customer_name
+from Depositer d);
+
+select distinct d.Customer_name
+from Depositer d, BankAccount ba, Loan l, Borrower b
+where d.Acc_no=ba.Acc_no
+and ba.Branch_name='Bangalore'
+and ba.Branch_name=l.Branch_name
+and l.loan_number=b.loan_number
+and b.Customer_name=d.Customer_name;
+
+select Branch_name
+from Branch
+where Assets_in_lakhs> all (
+select Assets_in_lakhs
+from Branch
+where Branch_city='Bangalore');
+
+delete from BankAccount 
+where Branch_name in (
+select Branch_name
+from Branch
+where Branch_city='Bombay');
+
+update BankAccount 
+set Balance=Balance*1.05;
+
+select *from BankAccount;
