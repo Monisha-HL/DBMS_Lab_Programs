@@ -1,0 +1,95 @@
+create database Company_temp411;
+use Company_temp411;
+create table Employee(empno int,
+ename varchar(20),
+mgr_no int,
+hiredate date,
+salary real,
+dept_no int,
+primary key(empno, dept_no),
+foreign key(dept_no) references Dept(dept_no));
+
+select *from Employee;
+select *from Project;
+select *from Dept;
+select *from Incentives;
+select *from Assigned_to;
+
+create table Project(pno int,
+ploc varchar(20),
+pname varchar(20),
+primary key (pno));
+
+create table Dept(dept_no int,
+dname varchar(20),
+dloc varchar(20),
+primary key (dept_no));
+
+create table Incentives(empno  int,
+incentive_date date,
+incentive_amount real,
+primary key (incentive_date),
+foreign key (empno) references Employee(empno));
+
+create table Assigned_to (empno int,
+pno int,
+jobrole varchar(20),
+primary key (empno, pno),
+foreign key (empno) references Employee(empno),
+foreign key (pno) references Project(pno));
+
+insert into Employee values(1, 'Avinash', '11', '2005-06-10', 20000, 201);
+insert into Employee values(2, 'Rahul', '12', '2004-03-15', 25000, 202);
+insert into Employee values(3, 'John', '13', '2007-04-12', 35000, 205);
+insert into Employee values(4, 'David', '14', '2005-07-21', 40000, 203);
+insert into Employee values(5, 'Nikil', '15', '2003-09-30', 50000, 204);
+insert into Employee values(6, 'Smith', '16', '2004-09-30', 10000, 206);
+
+insert into Project values(01, 'Bengaluru', 'product x');
+insert into Project values(02, 'Bengaluru', 'product y');
+insert into Project values(03, 'Mysuru', 'product c');
+insert into Project values(04, 'Hyderabad', 'product v');
+insert into Project values(05, 'Mangalore', 'product b');
+
+insert into Dept values(201, 'research_dept', 'Bengaluru');
+insert into Dept values(202, 'accounts_dept', 'Bengaluru');
+insert into Dept values(203, 'admin_dept', 'Mysuru');
+insert into Dept values(204, 'maintenance_dept', 'Hyderabad');
+insert into Dept values(205, 'research_dept', 'Mangalore');
+insert into Dept values(206, 'research_dept', 'Mangalore');
+
+insert into Incentives values(1, '2008-09-11', 1000);
+insert into Incentives values(2, '2007-05-10', 1500);
+insert into Incentives values(3, '2010-04-15', 2500);
+insert into Incentives values(4, '2011-02-21', 3300);
+insert into Incentives values(5, '2012-01-25', 4000);
+
+insert into Assigned_to values(1, 01, 'Junior_assistant');
+insert into Assigned_to values(2, 02, 'Senior_assistant');
+insert into Assigned_to values(3, 03, 'Admin');
+insert into Assigned_to values(4, 04, 'Analyst');
+insert into Assigned_to values(5, 05, 'Manager');
+
+select e.empno
+from Employee e
+where e.empno in(
+select empno
+from Assigned_to 
+where pno in(
+select pno
+from Project
+where ploc in('Bengaluru', 'Hyderabad', 'Mysuru')));
+
+select empno
+from Employee
+where empno not in(
+select empno
+from Incentives);
+
+select e.empno, e.ename, d.dname, a.jobrole, d.dloc as Dept_Loaction, p.ploc as Project_loaction
+from Employee e
+join Dept d on e.dept_no=d.dept_no
+join Assigned_to a on e.empno=a.empno
+join Project p on a.pno=p.pno
+where d.dloc=p.ploc;
+
