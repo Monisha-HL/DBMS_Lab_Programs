@@ -1,0 +1,56 @@
+use company_temp411;
+show tables;
+select * from employee;
+select * from dept;
+select * from project;
+select * from incentives;
+insert into dept values(207, 'HR', 'New York'); 
+insert into dept values(208, 'Engineering', 'San Francisco');
+
+insert into employee values(7, 'Allen', NULL, '2010-01-01', 100000, 207);
+insert into employee values(8, 'Alice', 11, '2012-03-15', 90000, 207);
+insert into employee values(9, 'Bob', 11, '2013-06-20', 85000, 207);
+insert into employee values(10, 'Charlie', 12, '2011-02-10', 70000, 208);
+insert into employee values(11, 'Smith', 12, '2014-09-05', 75000, 208);
+insert into employee values(12, 'Eve', 13, '2015-12-20', 72000, 207);
+
+insert into project values(6, 'New York', 'product a');
+insert into project values(7, 'San Francisco', 'product d');
+
+insert into incentives values(8, '2019-01-15', 1000);
+insert into incentives values(9, '2019-01-20', 1500);
+insert into incentives values(10, '2019-01-25', 1200);
+
+select mgr.ename as ManagerName, count(emp.empno)
+as EmployeeCount
+from employee emp
+join employee mgr on emp.mgr_no=mgr.empno
+group by mgr.ename
+order by EmployeeCount desc;
+
+select mgr.ename as ManagerName
+from employee mgr
+join employee emp on emp.mgr_no=mgr.empno
+group by mgr.ename, mgr.salary
+having mgr.salary>avg(emp.salary);
+
+select mgr1.ename as SecondTopLevelManager, emp.dept_no
+from employee emp
+join employee mgr1 on emp.mgr_no=mgr1.empno
+join employee mgr2 on mgr1.mgr_no=mgr2.empno
+group by emp.dept_no, mgr1.ename
+order by emp.dept_no, mgr1.ename
+limit 1 offset 1;
+
+select e.ename, i.incentive_amount, i.incentive_date
+from employee e
+join incentives i on e.empno=i.empno
+where month(i.incentive_date)=01 and year(i.incentive_date)=2019
+order by i.incentive_amount desc;
+
+select e.empno
+from employee e
+join employee mgr on e.mgr_no=mgr.empno
+where e.dept_no=mgr.dept_no;
+
+insert into employee values(13, 'Perl', 13, '2015-09-10', 50000, 207);
