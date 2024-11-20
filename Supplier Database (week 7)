@@ -1,0 +1,86 @@
+create database supplier_temp411;
+use supplier_temp411;
+
+create table Supplier(SID int,
+Sname varchar(20),
+City varchar(20),
+primary key(SID));
+
+create table Parts(PID int,
+Pname varchar(20),
+Colour varchar(20),
+primary key(PID));
+
+create table Catalog(SID int,
+PID int,
+Cost real,
+primary key(SID, PID),
+foreign key(SID) references Supplier(SID),
+foreign key(PID) references Parts(PID));
+
+insert into Supplier values(10001, 'Acme Widget', 'Bangalore');
+insert into Supplier values(10002, 'Johns','Kolkata');
+insert into Supplier values(10003, 'Vimal', 'Mumbai');
+insert into Supplier values(10004, 'Reliance', 'Delhi');
+
+insert into Parts values(20001, 'Book', 'Red');
+insert into Parts values(20002, 'Pen', 'Red');
+insert into Parts values(20003, 'Pencil', 'Green');
+insert into Parts values(20004, 'Mobile', 'Green');
+insert into Parts values(20005, 'Charger', 'Black');
+
+insert into Catalog values(10001, 20001, 10);
+insert into Catalog values(10001, 20002, 10);
+insert into Catalog values(10001, 20003, 30);
+insert into Catalog values(10001, 20004, 10);
+insert into Catalog values(10001, 20005, 10);
+insert into Catalog values(10002, 20001, 10);
+insert into Catalog values(10002, 20002, 20);
+insert into Catalog values(10003, 20003, 30);
+insert into Catalog values(10004, 20003, 40);
+
+select distinct Pname
+from Parts p, Catalog c
+where p.PID=c.PID;
+
+select s.Sname
+from Supplier s
+where not exists(select p.PID from Parts p
+				 where not exists(select c.PID from Catalog c
+                                  where c.SID=s.SID
+                                  and c.PID=p.PID));
+                                  
+select s.Sname
+from Supplier s
+where not exists(select p.PID from Parts p
+                 where Colour='Red'
+				 and not exists(select c.SID from Catalog c 
+                 where c.SID=s.SID
+                 and c.PID=p.PID));
+                 
+select p.Pname
+from Parts p 
+join Catalog c on c.PID=p.PID
+join Supplier s on c.SID=s.SID
+where s.Sname='Acme Widget'
+and p.PID not in(select c2.PID
+                 from Catalog c2
+                 join Supplier s2 on c2.SID=s2.SID
+                 where s2.Sname!='Acme Widget');
+                 
+select distinct c.SID
+from Catalog c 
+join(select PID, avg(Cost) as avg_cost 
+     from Catalog 
+     group by PID)
+avg_costs on c.PID= avg_costs.PID
+where c.Cost> avg_costs.avg_cost;
+
+select p.Pname, s.Sname
+from Parts p
+join Catalog c on p.PID= c.PID
+join Supplier s on c.SID= s.SID
+where c.Cost= (select max(c2.Cost)
+               from Catalog c2
+               where c2.PID=p.PID);
+               
